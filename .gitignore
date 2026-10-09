@@ -1,0 +1,15 @@
+# IDEs e sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Android / Gradle
+.gradle/
+build/
+local.properties
+
+# Java
+out/
+*.class
