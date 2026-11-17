@@ -79,4 +79,56 @@ class Produto{
 
         return $produto;
     }
+
+    public function alterarProduto($id, $nome, $descricao, $valor, $fotos = array()){
+        //altera os dados do Produto na tabela produtos
+        //================================
+        $sql = "UPDATE produtos SET nome_produto = :n, descricao = :d, valor = :v WHERE id_produto = :id";
+        $sql = $this->pdo->prepare($sql);
+        $sql->bindValue(":n", $nome);
+        $sql->bindValue(":d", $descricao);
+        $sql->bindValue(":v", $valor);
+        $sql->bindValue(":id", $id);
+
+        $isOk = $sql->execute();
+
+        //novas imagens sao adicionadas as que o produto ja tem
+        //================================
+        if($isOk == true && count($fotos) > 0){
+            for($i = 0; $i < count($fotos); $i++){
+                $sql = "INSERT INTO imagens (nome_imagem, fk_id_produto) values (:n, :fk)";
+                $sql = $this->pdo->prepare($sql);
+                $sql->bindValue(":n", $fotos[$i]);
+                $sql->bindValue(":fk", $id);
+
+                $isOk = $sql->execute();
+            }
+        }
+
+        return $isOk;
+    }
+
+    public function apagarImagem($id_produto, $nome_imagem){
+        //apaga uma imagem do produto (so o registro; o arquivo e apagado pela pagina)
+        $sql = "DELETE FROM imagens WHERE fk_id_produto = :id AND nome_imagem = :n";
+        $sql = $this->pdo->prepare($sql);
+        $sql->bindValue(":id", $id_produto);
+        $sql->bindValue(":n", $nome_imagem);
+
+        return $sql->execute();
+    }
+
+    public function apagarProduto($id){
+        //primeiro apaga as imagens (chave estrangeira), depois o produto
+        $sql = "DELETE FROM imagens WHERE fk_id_produto = :id";
+        $sql = $this->pdo->prepare($sql);
+        $sql->bindValue(":id", $id);
+        $sql->execute();
+
+        $sql = "DELETE FROM produtos WHERE id_produto = :id";
+        $sql = $this->pdo->prepare($sql);
+        $sql->bindValue(":id", $id);
+
+        return $sql->execute();
+    }
 }

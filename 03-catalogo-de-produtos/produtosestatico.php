@@ -1,6 +1,9 @@
 <?php
 // Catálogo estático: dados fixos no código, sem consulta ao banco de dados.
 // As imagens ficam na pasta banco_imagem/.
+require 'includes/auth.php';
+$pagina = 'catalogo';
+
 $produtos = [
     ['nome' => 'Sofá Confort 3 Lugares', 'categoria' => 'Sala de Estar', 'cat_slug' => 'sala', 'preco' => 2399.90, 'img' => 'sofa-confort.jpg', 'desc' => 'Estofado em veludo macio, estrutura reforçada e muito conforto para a sala de estar.'],
     ['nome' => 'Sofá Retrátil e Reclinável', 'categoria' => 'Sala de Estar', 'cat_slug' => 'sala', 'preco' => 3199.00, 'img' => 'sofa-retratil.jpg', 'desc' => 'Assentos retráteis e reclináveis com apoio de pés, perfeito para relaxar após um dia cheio.'],
@@ -18,12 +21,8 @@ $produtos = [
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<?php require 'includes/head.php'; ?>
 <title>Catálogo de Produtos | Loja Etim</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
 	:root{
 		--verde: #12b886;
@@ -44,51 +43,6 @@ $produtos = [
 		color: var(--tinta);
 	}
 	h1, h2, h3{ font-family: 'Poppins', arial, sans-serif; margin: 0; }
-
-	/* ===== Navbar ===== */
-	.navbar{
-		position: sticky;
-		top: 0;
-		z-index: 50;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 18px 6%;
-		background: rgba(255,255,255,.85);
-		backdrop-filter: blur(10px);
-		box-shadow: 0 2px 18px rgba(16,24,40,.06);
-	}
-	.navbar .logo{
-		font-weight: 700;
-		font-size: 20px;
-		letter-spacing: .3px;
-		background: linear-gradient(90deg, var(--verde), var(--indigo));
-		-webkit-background-clip: text;
-		background-clip: text;
-		color: transparent;
-	}
-	.navbar nav a{
-		margin-left: 28px;
-		text-decoration: none;
-		color: var(--tinta);
-		font-size: 14.5px;
-		font-weight: 500;
-		position: relative;
-		transition: color var(--dur);
-	}
-	.navbar nav a::after{
-		content: '';
-		position: absolute;
-		left: 0; bottom: -6px;
-		width: 0;
-		height: 2px;
-		background: var(--verde);
-		transition: width var(--dur);
-	}
-	.navbar nav a:hover{ color: var(--verde-escuro); }
-	.navbar nav a:hover::after{ width: 100%; }
-	.navbar nav a.ativo{ color: var(--verde-escuro); }
-	.navbar nav a.ativo::after{ width: 100%; }
 
 	/* ===== Hero ===== */
 	.hero{
@@ -151,7 +105,7 @@ $produtos = [
 	}
 
 	/* ===== Grid de produtos ===== */
-	main{ padding: 0 6% 90px; max-width: 1280px; margin: auto; }
+	main{ width: 100%; padding: 0 6% 90px; max-width: 1280px; margin: auto; }
 	.grid{
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
@@ -257,21 +211,13 @@ $produtos = [
 	}
 
 	@media (max-width: 480px){
-		.navbar nav a{ margin-left: 14px; font-size: 13px; }
 		.hero{ padding: 56px 6% 50px; }
 	}
 </style>
 </head>
 <body>
 
-	<header class="navbar">
-		<span class="logo">Loja Etim</span>
-		<nav>
-			<a href="index.php">Início</a>
-			<a href="produtos.php">Produtos Cadastrados</a>
-			<a href="produtosestatico.php" class="ativo">Catálogo</a>
-		</nav>
-	</header>
+	<?php require 'includes/navbar.php'; ?>
 
 	<section class="hero">
 		<h1>Catálogo de Produtos</h1>
@@ -304,7 +250,7 @@ $produtos = [
 		</div>
 	</main>
 
-	<footer>Loja Etim &middot; Catálogo estático de demonstração</footer>
+	<?php require 'includes/rodape.php'; ?>
 
 <script>
 	// Animação de entrada (in) ao rolar a página

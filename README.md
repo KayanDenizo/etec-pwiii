@@ -6,7 +6,7 @@ Atividades e projetos da disciplina **Programação Web III** (2026), do curso t
 |---|---|---|---|
 | [`01-login-cadastro-crud`](01-login-cadastro-crud/) | Sistema de login e cadastro de usuários com CRUD completo | PHP, MySQL, PDO | 03/2026 |
 | [`02-calculadora-e-pizzaria`](02-calculadora-e-pizzaria/) | Exercícios de formulários: calculadora e pedido de pizzaria | PHP | 08/2026 |
-| [`03-catalogo-de-produtos`](03-catalogo-de-produtos/) | Catálogo de produtos com imagens vindas do banco de dados | PHP, MySQL, PDO | 08/2026 |
+| [`03-catalogo-de-produtos`](03-catalogo-de-produtos/) | Catálogo de produtos com imagens vindas do banco de dados, login e CRUD de usuários | PHP, MySQL, PDO, Bootstrap | 08/2026 |
 
 ## Como rodar
 

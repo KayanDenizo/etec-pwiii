@@ -1,138 +1,80 @@
+<?php
+session_start();
+
+//se ja estiver logado, vai direto para a pagina principal
+if (isset($_SESSION['id_usuario'])) {
+    header("Location: principal.php");
+    exit;
+}
+
+$erro = '';
+$email = '';
+
+if (isset($_POST['email']) && isset($_POST['senha'])) {
+    $email = trim($_POST['email']);
+    $senha = $_POST['senha'];
+
+    if (empty($email) || empty($senha)) {
+        $erro = "Informe o e-mail e a senha.";
+    } else {
+        require 'classes/Usuario.class.php';
+        $u = new Usuario();
+
+        if (!$u->conecta()) {
+            $erro = "Não foi possível conectar ao banco de dados.";
+        } else {
+            $usuario = $u->logar($email, $senha);
+
+            if ($usuario) {
+                //login certo: guarda o usuario na sessao e vai para a pagina principal
+                session_regenerate_id(true);
+                $_SESSION['id_usuario'] = $usuario['id_usuario'];
+                $_SESSION['nome'] = $usuario['nome'];
+                header("Location: principal.php");
+                exit;
+            }
+
+            $erro = "E-mail ou senha incorretos.";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cadastro de Produto | Loja Etim</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="css/estilo.css">
+    <?php require 'includes/head.php'; ?>
+    <title>Login | Loja Etim</title>
 </head>
 
-<body>
-    <header class="navbar">
-        <span class="logo">Loja Etim</span>
-        <nav>
-            <a href="index.php" class="ativo">Início</a>
-            <a href="produtos.php">Produtos Cadastrados</a>
-            <a href="produtosestatico.php">Catálogo</a>
-        </nav>
-    </header>
+<body class="pagina-login">
+    <main class="cartao login-card">
+        <div class="text-center mb-4">
+            <div class="marca">Loja Etim</div>
+            <p class="text-secondary mb-0">Entre para gerenciar produtos e usuários</p>
+        </div>
 
-    <section class="hero">
-        <h1>Envio de Imagens</h1>
-        <p>Cadastre um novo produto com nome, descrição, valor e fotos.</p>
-    </section>
-
-    <main>
-        <form method="post" enctype="multipart/form-data" class="card-form">
-            <label for="nome">Nome do Produto</label>
-            <input type="text" name="nome" id="nome" placeholder="Ex: Sofá Confort 3 Lugares">
-
-            <label for="desc">Descrição</label>
-            <textarea name="desc" id="desc" placeholder="Descreva as principais características do produto"></textarea>
-
-            <label for="val">Valor</label>
-            <input type="number" name="valor" id="val" step="0.01" min="0" placeholder="0,00">
-
-            <label for="foto">Imagens do Produto</label>
-            <div class="upload-wrap">
-                <input type="file" name="foto[]" multiple id="foto" class="upload-input">
-                <div class="upload-box" id="upload-box">
-                    <span class="icone">🖼️</span>
-                    <strong>Clique ou arraste as imagens aqui</strong>
-                    <small id="arquivos-nome">JPG ou PNG &middot; pode selecionar várias</small>
-                </div>
+        <?php if ($erro): ?>
+            <div class="alert alert-danger py-2" role="alert">
+                <i class="bi bi-exclamation-circle"></i> <?php echo htmlspecialchars($erro); ?>
             </div>
+        <?php endif; ?>
 
-            <button type="submit" id="botao">Enviar Produto</button>
+        <form method="post">
+            <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" class="form-control" name="email" id="email"
+                    value="<?php echo htmlspecialchars($email); ?>" placeholder="voce@email.com" required autofocus>
+            </div>
+            <div class="mb-4">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" name="senha" id="senha" placeholder="Sua senha" required>
+            </div>
+            <button type="submit" class="btn btn-loja w-100 py-2">
+                <i class="bi bi-box-arrow-in-right"></i> Entrar
+            </button>
         </form>
     </main>
-
-    <footer>Loja Etim &middot; Cadastro de produtos</footer>
-
-    <script>
-        const inputFoto = document.getElementById('foto');
-        const caixaUpload = document.getElementById('upload-box');
-        const nomeArquivos = document.getElementById('arquivos-nome');
-
-        inputFoto.addEventListener('change', () => {
-            if (inputFoto.files.length === 0) {
-                nomeArquivos.textContent = 'JPG ou PNG · pode selecionar várias';
-            } else if (inputFoto.files.length === 1) {
-                nomeArquivos.textContent = inputFoto.files[0].name;
-            } else {
-                nomeArquivos.textContent = inputFoto.files.length + ' arquivos selecionados';
-            }
-        });
-
-        ['dragenter', 'dragover'].forEach(evento =>
-            inputFoto.addEventListener(evento, () => caixaUpload.classList.add('arrastando'))
-        );
-        ['dragleave', 'drop'].forEach(evento =>
-            inputFoto.addEventListener(evento, () => caixaUpload.classList.remove('arrastando'))
-        );
-    </script>
 </body>
 
 </html>
-
-<?php
-//checa se o usuario preencheu ao menos o nome
-if (isset($_POST['nome']) && !empty($_POST['nome'])) {
-    //coloca o dado preenchido em uma variavel nome e checa se nao tem injection
-    $nome = addslashes($_POST['nome']);
-    $descricao = addslashes($_POST['desc']); //faz o mesmo para a descricao
-    $valor = addslashes($_POST['valor']);
-
-    //cria um array vazio para guardar os nomes das fotos caso tenha enviado
-    $fotos = array();
-
-    //checa se foi enviada alguma foto
-    if (isset($_FILES['foto'])) {
-        $tipo = '';
-        //cria um laco e repete enquanto houver fotos
-        for ($i = 0; $i < count($_FILES['foto']['name']); $i++) {
-            if ($_FILES['foto']['type'][$i] == "image/png") {
-                $tipo = ".png";
-            } elseif ($_FILES['foto']['type'][$i] == 'image/jpeg') {
-                $tipo = ".jpg";
-            } else {
-                $tipo = "outro";
-            }
-
-            if ($tipo == 'outro') {
-?>
-                <script>
-                    alert("Só é possível enviar arquivos JPG e PNG");
-                </script>
-<?php
-            } else {
-                $nome_arquivo = md5($_FILES['foto']['name'][$i]) . rand(1, 999) . $tipo; //encripta
-
-                //move o arquivo para a pasta imagens ja com o nome novo do arquivo
-                move_uploaded_file($_FILES['foto']['tmp_name'][$i], 'imagens/' . $nome_arquivo);
-
-                //armazena o nome do arquivo no vetor fotos
-                array_push($fotos, $nome_arquivo);
-            }
-        }
-    }
-
-    //Verifica se todos os campos foram digitados no formulario
-    if (!empty($nome) && !empty($descricao) && !empty($fotos)) {
-        require 'classes/Produto.class.php';
-        $p = new Produto();
-        $p->conecta();
-        $p->enviarProduto($nome, $descricao, $valor, $fotos);
-    } else {
-?>
-        <script>
-            alert("Preencha os campos obrigatorios!")
-        </script>
-<?php
-    }
-}
-?>
